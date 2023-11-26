@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Image Classification</title>
+    <style>
+        /* CSS styles for the layout and appearance of the page */
+        body {
+            background-color: #c6e6c6; /* Updated color code - Background color for the entire page */
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+        }
+
+        .container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            max-width: 500px;
+            margin: 20px;
+            padding: 20px;
+            background-color: #f2fff2; /* Updated color code - Container background color */
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        h1, h2, p {
+            text-align: center; /* Center-align headings and paragraphs */
+        }
+
+        input[type="file"] {
+            margin-bottom: 10px; /* Add some margin below the file input field */
+        }
+
+        .result-box {
+            margin-top: 20px; /* Add margin to the result box */
+            padding: 10px;
+            background-color: #c6e6c6; /* Updated color code - Result box background color */
+            text-align: center;
+        }
+
+        input[type="submit"] {
+            background-color: green; /* Green background color for the "Classify" button */
+            color: white; /* Text color for the button */
+            padding: 10px 20px;
+            border: none;
+            cursor: pointer;
+            font-size: 16px;
+            margin-top: 10px; /* Add margin on top of the button */
+        }
+
+        input[type="submit"]:hover {
+            background-color: darkgreen; /* Dark green background color when hovering over the button */
+        }
+
+        .image-container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .image-container img {
+            max-width: 100%;
+            max-height: 500px;
+            margin: 10px;
+        }
+
+        .image-wrapper {
+            flex-basis: 50%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Image Classification</h1>
+        <form action="/classify" method="post" enctype="multipart/form-data">
+            <input type="file" name="image" accept="image/*" id="image-upload" onchange="previewImage(event)" required>
+            <br>
+            <img id="image-preview" style="max-width: 100%; max-height: 500px;">
+            <br>
+            <input type="submit" value="Classify" id="classify-button" disabled> <!-- The "Classify" button is initially disabled -->
+        </form>
+        {% if error %} <!-- Check if there is an error message to display -->
+            <p class="error">{{ error }}</p> <!-- Display the error message if it exists -->
+        {% endif %}
+        <div class="image-container">
+            {% if image_path %} <!-- Check if there is an image_path to display -->
+                <div class="image-wrapper">
+                    <h2>Pre-pro Original Image</h2>
+                    <img src="{{ url_for('static', filename=image_path) }}"> <!-- Display the pre-processed original image -->
+                </div>
+            {% endif %}
+            {% if grad_cam_path %} <!-- Check if there is a grad_cam_path to display -->
+                <div class="image-wrapper">
+                    <h2>Grad CAM Image</h2>
+                    <img src="{{ url_for('static', filename=grad_cam_path) }}"> <!-- Display the Grad CAM image -->
+                </div>
+            {% endif %}
+            {% if elapsed_time %} <!-- Check if there is an elapsed_time value to display -->
+            <div class="result-box">
+                <h2>Classification Time</h2>
+                <p style="font-size: 20px;">Elapsed Time: {{ elapsed_time }} seconds</p> <!-- Display the elapsed time -->
+            </div>
+            {% endif %} 
+        </div>
+        {% if grad_cam_path %} <!-- Check if there is a grad_cam_path to display the prediction result -->
+            <div class="result-box">
+                <h2>Prediction</h2>
+                <p style="font-size: 24px;"><strong>Predicted Class:</strong></p>
+                <p style="font-size: 20px;">{{ predicted_class }}</p> <!-- Display the predicted class -->
+                <p style="font-size: 24px;"><strong>Prediction Accuracy:</strong></p>
+                <p style="font-size: 20px;">{{ prediction_accuracy }}</p> <!-- Display the prediction accuracy -->
+            </div>
+        {% endif %}
+    </div>
+</body>
+<script>
+    function previewImage(event) {
+        var image = document.getElementById('image-preview');
+        image.src = URL.createObjectURL(event.target.files[0]);
+
+        // Check if a file is selected to enable the "Classify" button
+        var classifyButton = document.getElementById('classify-button');
+        if (event.target.files.length > 0) {
+            classifyButton.disabled = false; // Enable the "Classify" button if a file is selected
+        } else {
+            classifyButton.disabled = true; // Disable the "Classify" button if no file is selected
+        }
+    }
+</script>
+</body>
+</html>
+
+
+
+
+
+
+
+
